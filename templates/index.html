@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Медицинская клиника</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 18px;
+            background: #f5f7fb;
+            color: #243047
+        }
+        h1, h2 {
+            color: #174a70
+        }
+        section {
+            background: white;
+            padding: 18px;
+            margin: 18px 0;
+            border-radius: 10px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 12px 0
+        }
+
+        th, td {
+            border: 1px solid #d7dfeb;
+            padding: 8px;
+            text-align: left
+        }
+        th {
+            background: #eaf2f8
+        }
+        input, select, button {
+            padding: 9px;
+            margin: 5px 4px 5px 0
+        }
+        form {
+            margin: 10px 0
+        }
+        .forms {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 15px
+        }
+        a, button {
+            color:#174a70
+        }
+        .hint {
+            color: #65758b;
+            font-size: .92em
+        }
+    </style>
+</head>
+<body>
+<h1>Информационная система медицинской клиники</h1>
+
+<section><h2>Пациенты</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>ФИО</th>
+            <th>Дата рождения</th>
+            <th>Телефон</th>
+        </tr>
+        {% for p in patients %}
+        <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.full_name }}</td>
+            <td>{{ p.birth_date }}</td>
+            <td>{{ p.phone }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <p><a href="/api/patients">Получить данные в JSON</a></p></section>
+
+<section><h2>Врачи</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>ФИО</th>
+            <th>Специализация</th>
+            <th>Телефон</th>
+        </tr>
+        {% for d in doctors %}
+        <tr>
+            <td>{{ d.id }}</td>
+            <td>{{ d.full_name }}</td>
+            <td>{{ d.specialization }}</td>
+            <td>{{ d.phone }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <p><a href="/api/doctors">Получить данные в JSON</a></p></section>
+
+<section><h2>Приёмы</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Пациент</th>
+            <th>Врач</th>
+            <th>Специализация</th>
+            <th>Дата</th>
+            <th>Диагноз</th>
+        </tr>
+        {% for a in appointments %}
+        <tr>
+            <td>{{ a.id }}</td>
+            <td>{{ a.patient_name }}</td>
+            <td>{{ a.doctor_name }}</td>
+            <td>{{ a.specialization }}</td>
+            <td>{{ a.appointment_date }}</td>
+            <td>{{ a.diagnosis }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <p><a href="/api/appointments">Получить данные в JSON</a></p></section>
+
+<section><h2>Добавление новых записей</h2>
+    <div class="forms">
+        <div><h3>Новый пациент</h3>
+            <form method="post" action="/form/patients">
+                <input name="full_name" placeholder="ФИО" required><br>
+                <input type="date" name="birth_date" required><br>
+                <input name="phone" placeholder="Телефон" required><br>
+                <button type="submit">Добавить пациента</button>
+            </form>
+        </div>
+        <div><h3>Новый врач</h3>
+            <form method="post" action="/form/doctors">
+                <input name="full_name" placeholder="ФИО" required><br>
+                <input name="specialization" placeholder="Специализация" required><br>
+                <input name="phone" placeholder="Телефон"><br>
+                <button type="submit">Добавить врача</button>
+            </form>
+        </div>
+        <div><h3>Новый приём</h3>
+            <form method="post" action="/form/appointments">
+                <label>Пациент:</label><br>
+                <select name="patient_id" required>
+                {% for p in patients %}
+                <option value="{{ p.id }}">{{ p.full_name }} (ID {{ p.id }})</option>
+                {% endfor %}
+                </select><br>
+                <label>Врач:</label><br>
+                <select name="doctor_id" required>
+                {% for d in doctors %}
+                <option value="{{ d.id }}">{{ d.full_name }} — {{ d.specialization }}</option>
+                {% endfor %}
+                </select><br>
+                <input type="datetime-local" name="appointment_date" required><br>
+                <input name="diagnosis" placeholder="Диагноз"><br>
+                <button type="submit">Добавить приём</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<section><h2>Импорт и экспорт XML</h2>
+    <p><a href="/xml/export/patients">Скачать таблицу пациентов в формате XML</a></p>
+    <p>Для импорта отправьте XML-файл в теле POST-запроса на <code>/xml/import/patients</code> с заголовком <code>Content-Type:
+        application/xml</code>. При совпадении ID запись обновляется.</p>
+</section>
+</body>
+</html>
